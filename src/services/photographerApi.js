@@ -1,10 +1,10 @@
 import axios from "axios";
 import toast from "react-hot-toast";
-import { getProviderToken } from "./providerCookieUtils";
+import { getProviderToken } from "../utils/providerCookieUtils";
 
 const BASE_URL = "http://localhost:4000/api";
 
-const providerApi = axios.create({
+const api = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
   headers: {
@@ -12,7 +12,7 @@ const providerApi = axios.create({
   },
 });
 
-providerApi.interceptors.request.use((config) => {
+api.interceptors.request.use((config) => {
   const providerToken = getProviderToken();
   if (providerToken) {
     config.headers.Authorization = `Bearer ${providerToken}`;
@@ -23,7 +23,7 @@ providerApi.interceptors.request.use((config) => {
   return config;
 });
 
-providerApi.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error("Photographer API Error:", error.response || error.message);
@@ -50,17 +50,17 @@ export const addPhotographer = async (
     sampleWork.forEach((file) => formData.append("sampleWork", file));
   }
   const response = await api.post("/add-photographer", formData);
-  return response.data;
+  return response.data.data;
 };
 
 export const getPhotographers = async (mandapId) => {
   const response = await api.get(`/get-all-photographers/${mandapId}`);
-  return response.data;
+  return response.data.data.photographers;
 };
 
 export const getPhotographerById = async (photographerId) => {
   const response = await api.get(`/get-photographer/${photographerId}`);
-  return response.data;
+  return response.data.data.photographer;
 };
 
 export const updatePhotographer = async (
@@ -80,10 +80,10 @@ export const updatePhotographer = async (
     `/update-photographer/${photographerId}`,
     formData
   );
-  return response.data;
+  return response.data.data;
 };
 
 export const deletePhotographer = async (photographerId) => {
   const response = await api.delete(`/delete-photographer/${photographerId}`);
-  return response.data;
+  return response.data.data;
 };

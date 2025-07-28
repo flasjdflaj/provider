@@ -4,7 +4,7 @@ import { getProviderToken } from "../utils/providerCookieUtils";
 
 const BASE_URL = "http://localhost:4000/api";
 
-const providerApi = axios.create({
+const api = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
   headers: {
@@ -12,7 +12,7 @@ const providerApi = axios.create({
   },
 });
 
-providerApi.interceptors.request.use((config) => {
+api.interceptors.request.use((config) => {
   const providerToken = getProviderToken();
   if (providerToken) {
     config.headers.Authorization = `Bearer ${providerToken}`;
@@ -23,7 +23,7 @@ providerApi.interceptors.request.use((config) => {
   return config;
 });
 
-providerApi.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error("Mandap API Error:", error.response || error.message);
@@ -40,11 +40,10 @@ providerApi.interceptors.response.use(
 export const createMandap = async (
   {
     mandapName,
-    mandapDesc,
-    fullAddress,
+    description,
     city,
     state,
-    pinCode,
+    pincode,
     availableDates,
     venueType,
     penaltyChargesPerHour,
@@ -55,19 +54,19 @@ export const createMandap = async (
     securityDepositType,
     amenities,
     outdoorFacilities,
-    paymentOptions,
+    paymentMethods,
     isExternalCateringAllowed,
+    fullAddress,
     advancePayment,
   },
   venueImages
 ) => {
   const formData = new FormData();
   formData.append("mandapName", mandapName);
-  formData.append("mandapDesc", mandapDesc);
-  formData.append("fullAddress", fullAddress);
+  formData.append("mandapDesc", description);
   formData.append("city", city);
   formData.append("state", state);
-  formData.append("pinCode", pinCode);
+  formData.append("pinCode", pincode);
   formData.append("availableDates", JSON.stringify(availableDates));
   formData.append("venueType", JSON.stringify(venueType));
   formData.append("penaltyChargesPerHour", penaltyChargesPerHour);
@@ -78,19 +77,20 @@ export const createMandap = async (
   formData.append("securityDepositType", securityDepositType);
   formData.append("amenities", JSON.stringify(amenities));
   formData.append("outdoorFacilities", JSON.stringify(outdoorFacilities));
-  formData.append("paymentOptions", JSON.stringify(paymentOptions));
+  formData.append("paymentOptions", JSON.stringify(paymentMethods));
   formData.append("isExternalCateringAllowed", isExternalCateringAllowed);
+  if (fullAddress) formData.append("fullAddress", fullAddress);
   formData.append("advancePayment", advancePayment);
   if (venueImages && Array.isArray(venueImages)) {
     venueImages.forEach((image) => formData.append("venueImages", image));
   }
   const response = await api.post("/mandap", formData);
-  return response.data;
+  return response.data.data;
 };
 
 export const getProviderMandaps = async () => {
   const response = await api.get("/get-mandap");
-  return response.data;
+  return response.data.data.mandaps;
 };
 
 export const updateMandap = async (mandapId, mandapData, venueImages) => {
@@ -106,15 +106,15 @@ export const updateMandap = async (mandapId, mandapData, venueImages) => {
     venueImages.forEach((image) => formData.append("venueImages", image));
   }
   const response = await api.put(`/update-mandap/${mandapId}`, formData);
-  return response.data;
+  return response.data.data;
 };
 
 export const deleteMandap = async (mandapId) => {
   const response = await api.delete(`/delete-mandap/${mandapId}`);
-  return response.data;
+  return response.data.data;
 };
 
 export const getMandapById = async (mandapId) => {
   const response = await api.get(`/mandap/get-mandap/${mandapId}`);
-  return response.data;
+  return response.data.data;
 };

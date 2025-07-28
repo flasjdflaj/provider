@@ -1,8 +1,9 @@
+import axios from "axios";
 import toast from "react-hot-toast";
-import { getProviderToken } from "./providerCookieUtils";
+import { getProviderToken } from "../utils/providerCookieUtils";
 
 const BASE_URL = "http://localhost:4000/api";
-const providerApi = axios.create({
+const api = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
   headers: {
@@ -10,7 +11,7 @@ const providerApi = axios.create({
   },
 });
 
-providerApi.interceptors.request.use((config) => {
+api.interceptors.request.use((config) => {
   const providerToken = getProviderToken();
   if (providerToken) {
     config.headers.Authorization = `Bearer ${providerToken}`;
@@ -21,10 +22,10 @@ providerApi.interceptors.request.use((config) => {
   return config;
 });
 
-providerApi.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error("Caterer API Error:", error.response || error.message);
+    console.error("Review API Error:", error.response || error.message);
     if (error.response?.data?.error) {
       toast.error(error.response.data.error);
     } else if (error.message) {
@@ -36,11 +37,11 @@ providerApi.interceptors.response.use(
 
 // Review APIs
 export const getReviewsByMandapId = async (mandapId) => {
-  const response = await api.get(`/review/get-review/${mandapId}`);
-  return response.data;
+  const response = await api.get(`/get-review/${mandapId}`);
+  return response.data.data.reviews;
 };
 
 export const getReviewById = async (reviewId) => {
   const response = await api.get(`/review/get-review-by-id/${reviewId}`);
-  return response.data;
+  return response.data.data;
 };

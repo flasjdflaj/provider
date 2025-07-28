@@ -1,10 +1,10 @@
 import axios from "axios";
 import toast from "react-hot-toast";
-import { getProviderToken } from "./providerCookieUtils";
+import { getProviderToken } from "../utils/providerCookieUtils";
 
 const BASE_URL = "http://localhost:4000/api";
 
-const providerApi = axios.create({
+const api = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
   headers: {
@@ -12,7 +12,7 @@ const providerApi = axios.create({
   },
 });
 
-providerApi.interceptors.request.use((config) => {
+api.interceptors.request.use((config) => {
   const providerToken = getProviderToken();
   if (providerToken) {
     config.headers.Authorization = `Bearer ${providerToken}`;
@@ -23,7 +23,7 @@ providerApi.interceptors.request.use((config) => {
   return config;
 });
 
-providerApi.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error("Caterer API Error:", error.response || error.message);
@@ -41,7 +41,7 @@ export const addCaterer = async (
   {
     mandapId,
     catererName,
-    menuCategory,
+    menuCategories,
     foodType,
     isCustomizable,
     customizableItems,
@@ -52,7 +52,7 @@ export const addCaterer = async (
   const formData = new FormData();
   formData.append("mandapId", mandapId);
   formData.append("catererName", catererName);
-  formData.append("menuCategory", JSON.stringify(menuCategory));
+  formData.append("menuCategory", JSON.stringify(menuCategories[0])); // API expects single category
   formData.append("foodType", foodType);
   formData.append("isCustomizable", isCustomizable);
   if (customizableItems)
@@ -60,7 +60,7 @@ export const addCaterer = async (
   formData.append("hasTastingSession", hasTastingSession);
   if (categoryImage) formData.append("categoryImage", categoryImage);
   const response = await api.post("/add-caterer", formData);
-  return response.data;
+  return response.data.data;
 };
 
 export const updateCaterer = async (catererId, catererData, categoryImage) => {
@@ -77,20 +77,25 @@ export const updateCaterer = async (catererId, catererData, categoryImage) => {
   });
   if (categoryImage) formData.append("categoryImage", categoryImage);
   const response = await api.put(`/update-caterer/${catererId}`, formData);
-  return response.data;
+  return response.data.data;
 };
 
 export const deleteCaterer = async (catererId) => {
   const response = await api.delete(`/delete-caterer/${catererId}`);
-  return response.data;
+  return response.data.data;
 };
 
 export const getCatererById = async (catererId) => {
   const response = await api.get(`/get-caterer/${catererId}`);
-  return response.data;
+  return response.data.data.caterer;
+};
+
+export const getAllCaterers = async () => {
+  const response = await api.get("/get-all-caterers");
+  return response.data.data.caterers;
 };
 
 export const getCaterersByMandapId = async (mandapId) => {
-  const response = await api.get(`/get-all-caterers/${mandapId}`);
-  return response.data;
+  const response = await api.get(`/get-all-caterer/${mandapId}`);
+  return response.data.data.caterers;
 };
