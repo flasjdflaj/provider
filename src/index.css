@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Calendar Styling */
+.custom-calendar .react-calendar {
+  width: 100%;
+  border: none;
+  font-family: Inter, sans-serif;
+}
+
+.custom-calendar .react-calendar__tile {
+  padding: 10px;
+  position: relative;
+}
+
+.custom-calendar .react-calendar__tile:hover {
+  background-color: #f3f4f6;
+}
+
+.custom-calendar .react-calendar__tile--active {
+  background-color: #5E35B1 !important;
+  color: white;
+}
+
+.custom-calendar .react-calendar__month-view__days__day--weekend {
+  color: #f43f5e;
+}
+
+.custom-calendar .react-calendar__month-view__weekdays {
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 0.75rem;
+}
+
+.custom-calendar .react-calendar__navigation button {
+  color: #5E35B1;
+  font-weight: bold;
+}
+
+.custom-calendar .react-calendar__navigation button:enabled:hover,
+.custom-calendar .react-calendar__navigation button:enabled:focus {
+  background-color: #f3f4f6;
+}
